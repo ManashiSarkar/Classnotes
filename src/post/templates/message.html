@@ -1,0 +1,96 @@
+{% extends 'home-page.html' %}
+
+{% block more_scripts %} 
+<style type="text/css">
+
+table {
+    border-collapse: collapse;
+}
+
+table, th, td {
+   border: 1px solid black;
+}
+
+table {
+    table-layout: fixed; 
+    width: 78%;
+    margin-left: 7px;
+}
+
+th {
+    height: 50px;
+    
+    text-align: center;
+}
+
+td {
+	
+	vertical-align: top;
+    text-align: left;
+    
+    word-wrap: break-word;
+}
+
+th, td {
+    padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #eaeeea}
+tr:nth-child(odd) {background-color: #f9f9f9}
+
+th {
+    background-color: #859595;
+    color: black;
+}
+</style>
+
+<script type="text/javascript">
+
+function set_seen(obj) {
+
+}
+
+</script>
+
+
+{% endblock %}
+
+{% block content %}
+	<div style='margin:40px;margin-top:10px;'>
+		{% if not talks %}
+			<h3>No messages to show</h3>
+		{% else %}
+			<table>
+				<colgroup>
+				    <col style="width:10%">
+				    <col style="width:10%">
+				    <col style="width:60%">
+				    <col style="width:10%">
+				    <col style="width:10%">
+				</colgroup>
+				<tr>
+					<th>From</th>
+					<th>To</th>
+					<th>Most recent message</th>
+					<th>Sent</th>
+					<th>Read</th>
+				</tr>
+				{% for talk in talks %}
+					<tr id={{ talk.pk }} title='Double click to see full conversation'> {% csrf_token %}
+						<td>{{ talk.author }}</td>
+						<td>{{ talk.recipient }}</td>
+						<td style='text-align:left;width:200px;'>{{ talk.content }}</td>
+						<td>{{ talk.sent_time }}</td>
+						<td>
+							{% if talk.is_read %}
+								{{ talk.read_time }}
+							{% else %}
+								<strong><u>Unread</u></strong>
+							{% endif %}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% endif %}
+	</div>
+{% endblock %}

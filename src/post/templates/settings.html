@@ -1,0 +1,127 @@
+{% extends 'home-page.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block more_scripts %}
+
+{% if not request.user.is_authenticated %}
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">
+    </script>
+{% endif %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var title = document.getElementsByTagName('h3')[0];
+        console.log(title);
+        title.addEventListener('dblclick',edit_post);
+    });
+
+    function edit_post(ev) {
+        window.location.href = '/post/'+ev.target.parentNode.id+'/edit/'; // redirect
+    }
+    
+
+</script>
+
+
+<style type="text/css">
+
+.settings_view {
+    width: 72%;
+    margin: 70px;
+    margin-top: 5px;
+}
+
+.outer{
+border-color: #bbaabb;
+padding-left: 15px;
+background-color: #b9c9cc;
+}
+
+.inner{
+border-color: #bbaabb;
+padding: 20px;
+padding-top: 0px;
+margin: 10px;
+margin-bottom: 30px;
+background-color: #fdfcfc;
+}
+
+.lol {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #dddddd;
+    padding: 10px 15px;
+    background-color: #fdfdfd;
+    min-height: 500px;
+    font-size: 17px;
+}
+
+.well-heading {
+	margin-left: 15px;
+	margin-top: 30px;
+	font-size: 18px;
+	font-family: helvetica;
+	font-width: bold;
+}
+
+table {
+	padding-top: 10px;
+	font-size: 15px;
+}
+
+td {
+	padding-top: 3px;
+	font-weight: bold;
+	color: gray;
+}
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+    <div id='{{ profile.pk }}' class='settings_view outer well'>
+        
+        <span class="well-heading"><b>GENERAL</b></span>
+        <div class='well inner row'>
+            <form method='POST' action="{% url 'general_form' %}" class="col col-md col-md-5" style="margin-top:15px;"> 
+            	{% csrf_token %}
+            	{{ generalForm|crispy }}
+            	<input type='submit' class="btn btn-primary" value='Save'/>
+            </form>
+        </div>
+
+        <span class="well-heading"><b>TOPICS FOLLOWING</b></span>
+        <div class='well inner row'>
+        	<table class="col col-md col-md-6" style="margin-top:15px;">
+        		{% for topic in topicsFollowing %}
+        			<tr>
+        				<td>
+        					{{ topic.name }}
+        				</td>
+        			</tr>
+        		{% endfor %}
+        	</table>
+
+            <form method='POST' action="{% url 'topics_form' %}" class="col col-md col-md-5" style="margin-top:15px;"> 
+            	{% csrf_token %}
+            	{{ topicsForm|crispy }}
+            	<input type='submit' class="btn btn-primary" value='Follow'/>
+            </form>
+        </div>
+
+        <span class="well-heading"><b>PRIVACY</b></span>
+        <div class='well inner'>
+            <h1 style='color:{{ profile.state.user_type }};'><b>{{ profile.username }}</b></h1>
+            <div style='padding-top:30px;'>
+                <p>{{ profile.First_name }} {{ profile.Last_name }}</p>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,199 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Class Notes</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{% static 'font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    {% if request.user %}
+        <script
+          src="https://code.jquery.com/jquery-3.2.1.min.js"
+          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+          crossorigin="anonymous">
+        </script>
+
+        <!--<script type="text/javascript" src="{% static 'js/messages.js' %}"></script>-->
+        <script type="text/javascript">
+            $(document).ready(function(){
+                setTimeout(startup,1);
+                
+                // messages
+                var location = String(document.location);
+                if( location.match(/messages/) ) {
+                    // set some event listeners on hover, and define what to do once hover is done
+                    var rows = document.getElementsByTagName('tr');
+
+                    for(var i=0;i<rows.length;i++) {
+                        if( rows[i].hasAttribute('id') ) {
+                            //console.log(rows[i]);
+                            rows[i].addEventListener("mouseover", isSeen);
+
+                            rows[i].addEventListener('click', isSeen);
+                            rows[i].addEventListener('dblclick', isSeen);
+
+                            if( location.match(/messages\/$/) ) {
+                                // url = /messages/
+                                //rows[i].addEventListener('click', openMessages);
+                                rows[i].addEventListener('dblclick', openMessages);
+                            }
+                        }
+                    }
+
+                }
+
+                // notifications
+
+            });
+            
+            function openMessages(ev) {
+                // check child 3 and 5 for messages/with/
+                //console.log(ev.target.parentNode.childNodes);
+                var child3 = ev.target.parentNode.childNodes[3].innerHTML;
+                var child5 = ev.target.parentNode.childNodes[5].innerHTML;
+                
+                console.log(child3+' '+child5);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/async_messages/",
+                    data: {
+                        'redirect':true,
+                        'child3':child3,
+                        'child5':child5,
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        window.location.href = '/messages/with/'+data['redirect']+'/'; // redirect
+                    }
+                });
+            }
+
+            function isSeen(ev) {   
+                //console.log(ev.target.parentNode.innerText);
+                //console.log(ev.target.parentNode.childNodes[3].innerHTML); // first td element : <from>
+                
+                $.ajax({
+                type:"POST",
+                url:"/async_messages/",
+                data: {
+                    'id': ev.target.parentNode.id, // from form
+                    'username': ev.target.parentNode.childNodes[3].innerText,
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                success: function(){
+                    //$('#message').html("<h2>Contact Form Submitted!</h2>") 
+                    }
+                });
+            //return false; //<---- move it here
+                
+            }
+
+            function startup() {
+                
+                $.ajax({
+                    url:"/async_messages/",
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data){
+                        if( data['new_message'] !== '' ) {
+                            document.getElementById('messages').innerHTML='<strong><u>Messages</u></strong>';
+                        }
+                    }
+                });
+                setTimeout(startup,1000*60*1);
+            }
+        </script>
+    {% endif %}
+
+    {% block more_scripts %} 
+    {% endblock %}
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default topnav" role="navigation">
+        <div class="container topnav">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand topnav" href="{% url 'landing_page' %}">&lt; Class Notes /&gt;</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-left"> <!-- used to have navbar-right -->
+                    <li>
+                        <a href="{% url 'profile' username=request.user.username %}">Profile ({{ request.user.username }})</a>
+                    </li>
+                    <li>
+                        <a id='messages' href="{% url 'messages_all' %}">Messages</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'settings' %}">Settings</a>
+                    </li>
+                    <li {% url 'new_post' as new_post %} {% if request.path == new_post %} class='active' {% endif %}>
+                        <a href="{% url 'new_post' %}">New post</a>
+                    </li>
+                    <li>
+                        <form class="navbar-form navbar-right" role="search" name='search' action="{% url 'contact' %}"> {% csrf_token %}
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search">
+                            </div>
+                            <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                        </form>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right"> <!-- used to have navbar-right -->
+                    <li>
+                        <a href="{% url 'contact' %}">Contact</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account_logout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- End navigation -->
+    
+    <!-- Page Content -->
+
+    {% block content %}
+    {% endblock %}
+
+    <!-- End Page Content -->
+
+    <!-- jQuery -->
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+</body>
+
+</html>

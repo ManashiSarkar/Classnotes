@@ -1,0 +1,142 @@
+{% extends 'home-page.html' %}
+{% load static %}
+
+{% block more_scripts %}
+
+{% if not request.user.is_authenticated %}
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">
+    </script>
+{% endif %}
+
+<!-- <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">
+    </script> -->
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var rows = document.getElementsByTagName('tr');
+
+        for(var i=0;i<rows.length;i++) {
+            if( rows[i].hasAttribute('id') ) {
+                // url = /messages/
+                //rows[i].addEventListener('click', openMessages);
+                rows[i].addEventListener('dblclick', edit_post);
+            }
+        }
+    });
+
+    function edit_post(ev) {
+        console.log(ev.target.parentNode);
+        //window.location.href = '/post/'+ev.target.parentNode.id+'/edit/'; // redirect
+    }
+    
+
+</script>
+
+
+<style type="text/css">
+
+.profile_view {
+    width: 72%;
+    margin: 70px;
+    margin-top: 5px;
+}
+
+.outer{
+border-color: #bbaabb;
+padding-left: 15px;
+background-color: #d0e0e0;
+}
+
+.inner{
+border-color: #bbaabb;
+padding: 20px;
+padding-top: 0px;
+margin: 10px;
+background-color: #fdfcfc;
+}
+
+.lol {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #dddddd;
+    padding: 10px 15px;
+    background-color: #fdfdfd;
+    min-height: 500px;
+    font-size: 17px;
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed; 
+    width: 97.8%;
+    margin: 10px;
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+table {
+   border: 2px solid #bbbbbb;
+}
+
+td {
+    border: 1px solid #dddddd;
+    vertical-align: top;
+    text-align: left;
+    height: 70px;
+    word-wrap: break-word;
+}
+
+th, td {
+    padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #eaeeea}
+tr:nth-child(odd) {background-color: #f9f9f9}
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+    <div id='{{ profile.pk }}' class='profile_view outer well'>
+        <div class='well inner'>
+            <h1 style='color:{{ profile.state.user_type }};'><b>{{ profile.username }}</b></h1>
+            <div>
+                <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
+            </div>
+        </div>
+
+        <div>
+            
+            <input id='drafts' type='checkbox' value='Drafts' 
+            {% if profile != request.user and posts %} 
+                style='visibility:hidden;'
+            {% endif %} 
+            style='margin-left:92.5%;margin-top:10px;margin-bottom:-5px;'>
+            
+            <span {% if profile != request.user and posts %} 
+                style='visibility:hidden;'
+            {% endif %}>Drafts</span>
+            <br/>
+            
+            <table>
+                {% for post in posts %}
+                    <tr>
+                        <td style='padding-left:20px;'>
+                            <h4>
+                                <a href="{% url 'post' post_id=post.pk %}">{{ post.title }}</a>
+                            </h4>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

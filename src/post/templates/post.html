@@ -1,0 +1,96 @@
+{% extends 'home-page.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block more_scripts %}
+
+{% if not request.user.is_authenticated %}
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous">
+    </script>
+{% endif %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var title = document.getElementsByTagName('h3')[0];
+        console.log(title);
+        title.addEventListener('dblclick',edit_post);
+
+        // publish
+        var publish = document.getElementById('publish');
+
+    });
+
+    function edit_post(ev) {
+        window.location.href = '/post/'+ev.target.parentNode.id+'/edit/'; // redirect
+    }
+    
+
+</script>
+
+
+<style type="text/css">
+
+.post_view {
+    width: 72%;
+    margin: 70px;
+    margin-top: 5px;
+}
+
+.post{
+border-color: #bbaabb;
+padding-left: 15px;
+background-color: #f0f0f0;
+}
+
+.lol {
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #dddddd;
+    padding: 10px 15px;
+    background-color: #fdfdfd;
+    min-height: 500px;
+    font-size: 17px;
+}
+
+.comment {
+    margin-top: 15px;
+    /*background-color: white;*/
+}
+
+.comment-form {
+    margin-top: 15px;
+    background-color: white;
+}
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+    <div id='{{ post.pk }}' class='post_view'> {% csrf_token %}
+        <h3 title='Double click on post title to edit post' class='post well'>{{ post.title }}</h3>
+        <div class='lol'>{{ post.content|safe }}</div>
+    
+        <div class='comment well'>
+            <h4>Comments:</h4>
+            {% for comment in comments %}
+                <div class='well well-sm comment-form'>
+                    <span class='col col-md-2' style="font-size:15px;"><b>{{ comment.author }} </b></span> 
+                    <span class='col' style='padding-left:5px;'>{{ comment.content }}</span>
+                </div>
+            {% endfor %}
+
+            <div class='well well-md comment-form'>
+                <span style="margin:16px;font-size:18px;"> {{ request.user.username }} </span>
+                <form method='POST'> {% csrf_token %}
+                    <span class='col col-md-7'> {{ form|crispy }} </span>
+                    <input type='submit' value='Comment' class='btn btn-primary' />
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

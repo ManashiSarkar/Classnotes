@@ -1,0 +1,69 @@
+{% extends 'home-page.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block more_scripts %}
+    <!-- remove top 3 scripts on live server -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/tinymce/4.5.6/jquery.tinymce.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.5.6/tinymce.min.js"></script>
+    
+    <!-- remove above 3 scripts, and first 'https:' below on live server -->
+    <script src='https:https://cloud.tinymce.com/stable/tinymce.min.js'></script>
+
+    <script type="text/javascript">
+        
+        tinymce.init({
+        selector: '#id_content',
+        max_height: 500,
+        max_width: 500,
+        min_height: 200,
+        min_width: 400,
+        toolbar: 'undo redo styleselect bold italic alignleft aligncenter alignright bullist numlist outdent indent',
+        plugins: 'table,paste,searchreplace,autosave',
+        });
+        
+    </script>
+
+<style type="text/css">
+
+#content {
+    margin: 30px;
+    margin-top: 10px;
+    width: 78%;
+}
+
+.well {
+background-color: #ccddcc;
+}
+
+.vanish {
+    background-color: #febfcf;
+    margin-left: 30px;
+    padding: 10px;
+    border-radius: 3px;
+    width: 78%;
+    visibility: visible;
+    opacity: 0.5;
+    transition: opacity 5s linear;
+}
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+    
+    {% if updated %}
+        <script>
+            alert('Successfuly updated!');
+        </script>
+    {% endif %}
+    <div id='content'  class='well well-md'>
+        {% autoescape off %}
+        <form action='' method='post' novalidate> {% csrf_token %}
+            {{ form|crispy|safe }}
+            <input type='submit' class='btn btn-primary' value='Update'>
+        </form>
+        {% endautoescape %}
+    </div>
+{% endblock %}
